@@ -3,34 +3,38 @@ package com.example.lab_week_10
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
+import com.example.lab_week_10.viewmodels.TotalViewModel
 
 class MainActivity : AppCompatActivity() {
 
-    private var total: Int = 0 // [cite: 56]
+    private val viewModel by lazy {
+        ViewModelProvider(this)[TotalViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        total = 0 // [cite: 60]
-        updateText(total) // [cite: 61]
-
-        findViewById<Button>(R.id.button_increment).setOnClickListener { // [cite: 64]
-            incrementTotal() // [cite: 65]
-        }
-    }
-
-    private fun incrementTotal() {
-        total++ // [cite: 69]
-        updateText(total) // [cite: 70]
+        prepareViewModel()
     }
 
     private fun updateText(total: Int) {
-        findViewById<TextView>(R.id.text_total).text = // [cite: 73]
-            getString(R.string.text_total, total) // [cite: 74]
+        findViewById<TextView>(R.id.text_total).text =
+            getString(R.string.text_total, total)
+    }
+
+    private fun prepareViewModel() {
+        // Observe the LiveData object
+        viewModel.total.observe(this) {
+            // Whenever the value of the LiveData object changes
+            // the updateText() is called, with the new value as the parameter
+            updateText(it)
+        }
+
+        findViewById<Button>(R.id.button_increment).setOnClickListener {
+            viewModel.incrementTotal()
+        }
     }
 }
